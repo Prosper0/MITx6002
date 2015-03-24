@@ -1,0 +1,31 @@
+Let's say Alvin will catch the flu with probability of 1/10 during any given 
+month. Let's also assume that Alvin can catch the flu only once per month, and 
+that if he has caught the flu, the flu virus will die by the end of the month. 
+What is the probability of the following events?
+
+PROBLEM 1-1  (1 point possible)
+He catches the flu in September, October and November.
+=> (1/10)^3 = 1/1000
+
+PROBLEM 1-2  (1 point possible)
+He catches the flu in September and then again in November, but not in October.
+=> 1/10 * 1/10 * (1 - 1/10) = 1/10 * 1/10 * 9/10 = 9/1000
+
+PROBLEM 1-3  (1 point possible)
+He catches the flu exactly once in the three months from September through November.
+=> (1/10 * 9/10 * 9/10) + (9/10 * 1/10 * 9/10) + (9/10 * 9/10 * 1/10)
+= (81/1000) + (81/1000) + (81/1000)
+= 3 * (81/1000)
+= 243/1000
+
+PROBLEM 1-4  (1 point possible)
+He catches the flu in two or more of the three months from September through November.
+=> (1/10 * 1/10 * 9/10) + (1/10 * 9/10 * 1/10) + (9/10 * 1/10 * 1/10) + (1/10 * 1/10 * 1/10)
+= (9/1000) + (9/1000) + (9/1000) + (1/1000)
+= (28/1000)
+= (28/1000), LCD = 4
+= 7/250
+
+Calc-help:
+https://www.wolframalpha.com/
+http://www.alcula.com/calculators/math/gcd/
