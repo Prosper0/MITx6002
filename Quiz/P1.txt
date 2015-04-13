@@ -1,0 +1,32 @@
+PROBLEM 1-1
+A good hash function should generate a Gaussian distribution
+=> False
+
+PROBLEM 1-2
+A deterministic program always returns the same result for the same input
+=> True
+
+PROBLEM 1-3
+The coefficient of variation is better than the standard deviation for comparing the variation in the number of residents of different cities or towns to the variation in the number of residents in different countries
+=> True
+
+PROBLEM 1-4
+Monte Carlo simulations can only be used to solve stochastic problems
+=> False
+
+PROBLEM 1-5
+Uniform distributions are usually the most useful for modeling complex systems
+=> False
+
+PROBLEM 1-6
+Consider the following code:
+
+import random
+for i in range(1000):
+    randomList1.append(int(random.random() * 2))
+
+for i in range(1000):
+    randomList2.append(random.choice((0,1)))
+
+In Python, randomList1 and randomList2 will have the same distribution pattern
+=> True

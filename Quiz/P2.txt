@@ -1,0 +1,24 @@
+PROBLEM 2-1
+Lists of equal length
+[random walk, probability, pylab.plot, hashing]
+=> pylab.plot
+
+PROBLEM 2-2
+random.seed(5)
+[reproducability, Monte Carlo sim, standard deviation, collision]
+=> reproducability
+
+PROBLEM 2-3
+Gaussian distribution
+[equal probability, normal distrubution, area of circle, hash table]
+=> normal dist
+
+PROBLEM 2-4
+Hash table
+[collision, Monty Hall, random walk, sample size]
+=> collision
+
+PROBLEM 2-5
+Law of large numbers
+[exponential distribution, hiostogram, large sample population, large number of trials]
+=> large number of trials
