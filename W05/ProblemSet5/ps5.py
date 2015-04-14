@@ -65,7 +65,7 @@ def load_map(mapFilename):
 #
 # State the optimization problem as a function to minimize
 # and what the constraints are
-#
+# depth-first search
 
 def bruteForceSearch(digraph, start, end, maxTotalDist, maxDistOutdoors):    
     """
@@ -91,8 +91,70 @@ def bruteForceSearch(digraph, start, end, maxTotalDist, maxDistOutdoors):
         If there exists no path that satisfies maxTotalDist and
         maxDistOutdoors constraints, then raises a ValueError.
     """
-    #TODO
-    pass
+    dfs_paths = DFS_Lecture(digraph, start, end)
+    shortest_path = []
+    shortest_dist = float('inf')
+    
+    for path in dfs_paths:
+        total_dist = 0
+        outdoor_dist = 0
+        for index, n in enumerate(path[:-1]):
+            for dest, (total, outdoor) in digraph.edges[Node(n)]:
+                if str(dest) == path[index+1]:
+                    total_dist += total
+                    outdoor_dist += outdoor
+                    break
+        if (total_dist <= maxTotalDist) & (outdoor_dist <= maxDistOutdoors) & (total_dist <= shortest_dist):
+            shortest_path = path
+            shortest_dist = total_dist
+    
+    if not shortest_path:
+        raise ValueError('No such path!')
+        
+    return shortest_path
+    
+def DFS_Lecture(digraph, start, end):
+    '''
+    use modified DFS from lecture to get validated search path
+    '''
+    q = []
+    possible_path = []
+    q.append([start])
+    
+    while q:
+        current_path = q.pop(-1)
+        
+        if current_path[-1] == end:
+            possible_path.append(current_path)
+            
+        current_node = current_path[-1]
+        current_children = digraph.childrenOf(Node(current_node))
+        
+        for node in current_children:
+            if str(node) not in current_path: #avoid cycles
+                q.append(current_path + [str(node)])
+                
+    return possible_path
+
+# Test brute force
+#mitMap2 = load_map(r"F:\Dev\Python\MITx6002\W05\ProblemSet5\mit_map.txt")
+#bfs1 = bruteForceSearch(mitMap2, "32", "36", 100, 100)
+#print 'Should be [\'32\', \'36\']'
+#print 'Answer is ' + str(bfs1)
+##print '==============='
+#bfs2 = bruteForceSearch(mitMap2, "32", "16", 200, 100)
+#print 'Should be [\'32\', \'16\']'
+#print 'Answer is ' + str(bfs2)
+#print '==============='
+#bfs3 = bruteForceSearch(mitMap2, "68", "36", 20000, 10000)
+#print 'Should be [\'68\', \'32\', \'36\']'
+#print 'Answer is ' + str(bfs3)
+#print '==============='
+#bfs4 = bruteForceSearch(mitMap2, "1", "3", 18, 18)
+#print 'Should be [\'1\', \'4\', \'3\']'
+#print 'Answer is ' + str(bfs4)
+
+
 
 #
 # Problem 4: Finding the Shorest Path using Optimized Search Method
@@ -122,131 +184,162 @@ def directedDFS(digraph, start, end, maxTotalDist, maxDistOutdoors):
         If there exists no path that satisfies maxTotalDist and
         maxDistOutdoors constraints, then raises a ValueError.
     """
-    #TODO
-    pass
+    # Modified code from lecture graphBFS
+    q = []
+    shortest_path = []
+    shortest_dist = float('inf')
+    q.append([[start], 0, 0])
+
+    while len(q) != 0:
+        curr_mitmap_row = q.pop(-1) #[[start], 0, 0]
+        curr_path = curr_mitmap_row[0] #[start] eg. 32
+        curr_node = curr_path[-1] #start-node
+        curr_edges = digraph.edges[Node(curr_node)] #start-node edges
+
+        #for each edge, check
+        for edge in curr_edges:
+            total_dist = curr_mitmap_row[1] #0
+            outdoor_dist = curr_mitmap_row[2] #0
+            if str(edge[0]) not in curr_path: #avoid cycles
+                newpath = curr_path + [str(edge[0])] #next edge to new path
+                total_dist += edge[1][0]
+                outdoor_dist += edge[1][1]
+                
+                if (total_dist > maxTotalDist) | (outdoor_dist > maxDistOutdoors) | (total_dist > shortest_dist):
+                    continue #don't follow any more
+
+                q.append([newpath, total_dist, outdoor_dist]) #next path to follow
+                if str(edge[0]) == end: #have we come to the end?
+                    shortest_path = newpath
+                    shortest_dist = total_dist
+                    
+    if not shortest_path:
+        raise ValueError('No such path!')
+
+    return shortest_path
 
 # Uncomment below when ready to test
 #### NOTE! These tests may take a few minutes to run!! ####
-# if __name__ == '__main__':
+if __name__ == '__main__':
 #     Test cases
-#     mitMap = load_map("mit_map.txt")
-#     print isinstance(mitMap, Digraph)
-#     print isinstance(mitMap, WeightedDigraph)
-#     print 'nodes', mitMap.nodes
-#     print 'edges', mitMap.edges
+     mitMap = load_map(r"F:\Dev\Python\MITx6002\W05\ProblemSet5\mit_map.txt")
+     print isinstance(mitMap, Digraph)
+     print isinstance(mitMap, WeightedDigraph)
+     print 'nodes', mitMap.nodes
+     print 'edges', mitMap.edges
 
 
-#     LARGE_DIST = 1000000
+     LARGE_DIST = 1000000
 
 #     Test case 1
-#     print "---------------"
-#     print "Test case 1:"
-#     print "Find the shortest-path from Building 32 to 56"
-#     expectedPath1 = ['32', '56']
-#     brutePath1 = bruteForceSearch(mitMap, '32', '56', LARGE_DIST, LARGE_DIST)
-#     dfsPath1 = directedDFS(mitMap, '32', '56', LARGE_DIST, LARGE_DIST)
-#     print "Expected: ", expectedPath1
-#     print "Brute-force: ", brutePath1
-#     print "DFS: ", dfsPath1
-#     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath1 == brutePath1, expectedPath1 == dfsPath1)
+     print "---------------"
+     print "Test case 1:"
+     print "Find the shortest-path from Building 32 to 56"
+     expectedPath1 = ['32', '56']
+     brutePath1 = bruteForceSearch(mitMap, '32', '56', LARGE_DIST, LARGE_DIST)
+     dfsPath1 = directedDFS(mitMap, '32', '56', LARGE_DIST, LARGE_DIST)
+     print "Expected: ", expectedPath1
+     print "Brute-force: ", brutePath1
+     print "DFS: ", dfsPath1
+     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath1 == brutePath1, expectedPath1 == dfsPath1)
 
 #     Test case 2
-#     print "---------------"
-#     print "Test case 2:"
-#     print "Find the shortest-path from Building 32 to 56 without going outdoors"
-#     expectedPath2 = ['32', '36', '26', '16', '56']
-#     brutePath2 = bruteForceSearch(mitMap, '32', '56', LARGE_DIST, 0)
-#     dfsPath2 = directedDFS(mitMap, '32', '56', LARGE_DIST, 0)
-#     print "Expected: ", expectedPath2
-#     print "Brute-force: ", brutePath2
-#     print "DFS: ", dfsPath2
-#     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath2 == brutePath2, expectedPath2 == dfsPath2)
+     print "---------------"
+     print "Test case 2:"
+     print "Find the shortest-path from Building 32 to 56 without going outdoors"
+     expectedPath2 = ['32', '36', '26', '16', '56']
+     brutePath2 = bruteForceSearch(mitMap, '32', '56', LARGE_DIST, 0)
+     dfsPath2 = directedDFS(mitMap, '32', '56', LARGE_DIST, 0)
+     print "Expected: ", expectedPath2
+     print "Brute-force: ", brutePath2
+     print "DFS: ", dfsPath2
+     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath2 == brutePath2, expectedPath2 == dfsPath2)
 
 #     Test case 3
-#     print "---------------"
-#     print "Test case 3:"
-#     print "Find the shortest-path from Building 2 to 9"
-#     expectedPath3 = ['2', '3', '7', '9']
-#     brutePath3 = bruteForceSearch(mitMap, '2', '9', LARGE_DIST, LARGE_DIST)
-#     dfsPath3 = directedDFS(mitMap, '2', '9', LARGE_DIST, LARGE_DIST)
-#     print "Expected: ", expectedPath3
-#     print "Brute-force: ", brutePath3
-#     print "DFS: ", dfsPath3
-#     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath3 == brutePath3, expectedPath3 == dfsPath3)
+     print "---------------"
+     print "Test case 3:"
+     print "Find the shortest-path from Building 2 to 9"
+     expectedPath3 = ['2', '3', '7', '9']
+     brutePath3 = bruteForceSearch(mitMap, '2', '9', LARGE_DIST, LARGE_DIST)
+     dfsPath3 = directedDFS(mitMap, '2', '9', LARGE_DIST, LARGE_DIST)
+     print "Expected: ", expectedPath3
+     print "Brute-force: ", brutePath3
+     print "DFS: ", dfsPath3
+     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath3 == brutePath3, expectedPath3 == dfsPath3)
 
 #     Test case 4
-#     print "---------------"
-#     print "Test case 4:"
-#     print "Find the shortest-path from Building 2 to 9 without going outdoors"
-#     expectedPath4 = ['2', '4', '10', '13', '9']
-#     brutePath4 = bruteForceSearch(mitMap, '2', '9', LARGE_DIST, 0)
-#     dfsPath4 = directedDFS(mitMap, '2', '9', LARGE_DIST, 0)
-#     print "Expected: ", expectedPath4
-#     print "Brute-force: ", brutePath4
-#     print "DFS: ", dfsPath4
-#     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath4 == brutePath4, expectedPath4 == dfsPath4)
+     print "---------------"
+     print "Test case 4:"
+     print "Find the shortest-path from Building 2 to 9 without going outdoors"
+     expectedPath4 = ['2', '4', '10', '13', '9']
+     brutePath4 = bruteForceSearch(mitMap, '2', '9', LARGE_DIST, 0)
+     dfsPath4 = directedDFS(mitMap, '2', '9', LARGE_DIST, 0)
+     print "Expected: ", expectedPath4
+     print "Brute-force: ", brutePath4
+     print "DFS: ", dfsPath4
+     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath4 == brutePath4, expectedPath4 == dfsPath4)
 
 #     Test case 5
-#     print "---------------"
-#     print "Test case 5:"
-#     print "Find the shortest-path from Building 1 to 32"
-#     expectedPath5 = ['1', '4', '12', '32']
-#     brutePath5 = bruteForceSearch(mitMap, '1', '32', LARGE_DIST, LARGE_DIST)
-#     dfsPath5 = directedDFS(mitMap, '1', '32', LARGE_DIST, LARGE_DIST)
-#     print "Expected: ", expectedPath5
-#     print "Brute-force: ", brutePath5
-#     print "DFS: ", dfsPath5
-#     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath5 == brutePath5, expectedPath5 == dfsPath5)
+     print "---------------"
+     print "Test case 5:"
+     print "Find the shortest-path from Building 1 to 32"
+     expectedPath5 = ['1', '4', '12', '32']
+     brutePath5 = bruteForceSearch(mitMap, '1', '32', LARGE_DIST, LARGE_DIST)
+     dfsPath5 = directedDFS(mitMap, '1', '32', LARGE_DIST, LARGE_DIST)
+     print "Expected: ", expectedPath5
+     print "Brute-force: ", brutePath5
+     print "DFS: ", dfsPath5
+     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath5 == brutePath5, expectedPath5 == dfsPath5)
 
 #     Test case 6
-#     print "---------------"
-#     print "Test case 6:"
-#     print "Find the shortest-path from Building 1 to 32 without going outdoors"
-#     expectedPath6 = ['1', '3', '10', '4', '12', '24', '34', '36', '32']
-#     brutePath6 = bruteForceSearch(mitMap, '1', '32', LARGE_DIST, 0)
-#     dfsPath6 = directedDFS(mitMap, '1', '32', LARGE_DIST, 0)
-#     print "Expected: ", expectedPath6
-#     print "Brute-force: ", brutePath6
-#     print "DFS: ", dfsPath6
-#     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath6 == brutePath6, expectedPath6 == dfsPath6)
+     print "---------------"
+     print "Test case 6:"
+     print "Find the shortest-path from Building 1 to 32 without going outdoors"
+     expectedPath6 = ['1', '3', '10', '4', '12', '24', '34', '36', '32']
+     brutePath6 = bruteForceSearch(mitMap, '1', '32', LARGE_DIST, 0)
+     dfsPath6 = directedDFS(mitMap, '1', '32', LARGE_DIST, 0)
+     print "Expected: ", expectedPath6
+     print "Brute-force: ", brutePath6
+     print "DFS: ", dfsPath6
+     print "Correct? BFS: {0}; DFS: {1}".format(expectedPath6 == brutePath6, expectedPath6 == dfsPath6)
 
 #     Test case 7
-#     print "---------------"
-#     print "Test case 7:"
-#     print "Find the shortest-path from Building 8 to 50 without going outdoors"
-#     bruteRaisedErr = 'No'
-#     dfsRaisedErr = 'No'
-#     try:
-#         bruteForceSearch(mitMap, '8', '50', LARGE_DIST, 0)
-#     except ValueError:
-#         bruteRaisedErr = 'Yes'
+     print "---------------"
+     print "Test case 7:"
+     print "Find the shortest-path from Building 8 to 50 without going outdoors"
+     bruteRaisedErr = 'No'
+     dfsRaisedErr = 'No'
+     try:
+         bruteForceSearch(mitMap, '8', '50', LARGE_DIST, 0)
+     except ValueError:
+         bruteRaisedErr = 'Yes'
     
-#     try:
-#         directedDFS(mitMap, '8', '50', LARGE_DIST, 0)
-#     except ValueError:
-#         dfsRaisedErr = 'Yes'
+     try:
+         directedDFS(mitMap, '8', '50', LARGE_DIST, 0)
+     except ValueError:
+         dfsRaisedErr = 'Yes'
     
-#     print "Expected: No such path! Should throw a value error."
-#     print "Did brute force search raise an error?", bruteRaisedErr
-#     print "Did DFS search raise an error?", dfsRaisedErr
+     print "Expected: No such path! Should throw a value error."
+     print "Did brute force search raise an error?", bruteRaisedErr
+     print "Did DFS search raise an error?", dfsRaisedErr
 
 #     Test case 8
-#     print "---------------"
-#     print "Test case 8:"
-#     print "Find the shortest-path from Building 10 to 32 without walking"
-#     print "more than 100 meters in total"
-#     bruteRaisedErr = 'No'
-#     dfsRaisedErr = 'No'
-#     try:
-#         bruteForceSearch(mitMap, '10', '32', 100, LARGE_DIST)
-#     except ValueError:
-#         bruteRaisedErr = 'Yes'
+     print "---------------"
+     print "Test case 8:"
+     print "Find the shortest-path from Building 10 to 32 without walking"
+     print "more than 100 meters in total"
+     bruteRaisedErr = 'No'
+     dfsRaisedErr = 'No'
+     try:
+         bruteForceSearch(mitMap, '10', '32', 100, LARGE_DIST)
+     except ValueError:
+         bruteRaisedErr = 'Yes'
     
-#     try:
-#         directedDFS(mitMap, '10', '32', 100, LARGE_DIST)
-#     except ValueError:
-#         dfsRaisedErr = 'Yes'
+     try:
+         directedDFS(mitMap, '10', '32', 100, LARGE_DIST)
+     except ValueError:
+         dfsRaisedErr = 'Yes'
     
-#     print "Expected: No such path! Should throw a value error."
-#     print "Did brute force search raise an error?", bruteRaisedErr
-#     print "Did DFS search raise an error?", dfsRaisedErr
+     print "Expected: No such path! Should throw a value error."
+     print "Did brute force search raise an error?", bruteRaisedErr
+     print "Did DFS search raise an error?", dfsRaisedErr
