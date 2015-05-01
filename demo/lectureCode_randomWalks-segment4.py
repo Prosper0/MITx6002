@@ -88,7 +88,7 @@ def walk(f, d, numSteps):
 
 
 
-## import pylab
+import pylab
 
 ## #set line width
 ## pylab.rcParams['lines.linewidth'] = 6
@@ -201,3 +201,4 @@ def drunkTestP(numTrials = 50):
     pylab.show()
 
 
+drunkTestP()
